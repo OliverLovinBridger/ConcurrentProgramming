@@ -40,3 +40,4 @@ public class SpinController extends ActorThread<WashingMessage> {
         }
     }
 }
+
