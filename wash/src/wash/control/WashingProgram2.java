@@ -1,18 +1,17 @@
 package wash.control;
 
 import actor.ActorThread;
-import wash.control.WashingMessage.Order;
 import wash.io.WashingIO;
 import static wash.control.WashingMessage.Order.*;
 
-public class WashingProgram1 extends ActorThread<WashingMessage> {
+public class WashingProgram2 extends ActorThread<WashingMessage> {
 
     private WashingIO io;
     private ActorThread<WashingMessage> temp;
     private ActorThread<WashingMessage> water;
     private ActorThread<WashingMessage> spin;
 
-    WashingProgram1(WashingIO io, ActorThread<WashingMessage> temp,
+    WashingProgram2(WashingIO io, ActorThread<WashingMessage> temp,
                     ActorThread<WashingMessage> water,
                     ActorThread<WashingMessage> spin)
     {
@@ -26,8 +25,7 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
     public void run() {
         try {
 
-            System.out.println("washing program 1 started");
-
+            System.out.println("washing program 2 started");
 
             //Lock the hatch
             io.lock(true);
@@ -36,78 +34,111 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
             System.out.println("filling with water");
             water.send(new WashingMessage(this, WATER_FILL));
             WashingMessage ack1 = receive();
-            System.out.println("washing program 1 got " + ack1);
+            System.out.println("washing program 2 got " + ack1);
 
             //Värm till 40 grader
             System.out.println("setting TEMP_SET_40");
             temp.send(new WashingMessage(this, TEMP_SET_40));
             WashingMessage ack2 = receive();
-            System.out.println("washing program 1 got " + ack2);
+            System.out.println("washing program 2 got " + ack2);
 
 
             //rotera sakta.
             System.out.println("setting SPIN_SLOW...");
             spin.send(new WashingMessage(this, SPIN_SLOW));
             WashingMessage ack3 = receive();
-            System.out.println("washing program 1 got " + ack3);
+            System.out.println("washing program 2 got " + ack3);
 
+            //i 20 minuter
+            Thread.sleep(20 * 60000 / Settings.SPEEDUP);
 
-            //Spin i 5 simulerade minuter (en minut == 60000 millisekunder)
-            Thread.sleep(30 * 60000 / Settings.SPEEDUP);
-
-            //Sluta spinna
+            //Slutar spinna
             System.out.println("setting SPIN_OFF...");
             spin.send(new WashingMessage(this, SPIN_OFF));
             WashingMessage ack4 = receive();
-            System.out.println("washing program 1 got " + ack4);
+            System.out.println("washing program 2 got " + ack4);
 
-            //stäng av tempen
+            //Stänger av tempen
             System.out.println("Setting TEMP_40_OFF");
             temp.send(new WashingMessage(this, TEMP_IDLE));
             WashingMessage ack5 = receive();
-            System.out.println("washing program 1 got " + ack5);
+            System.out.println("washing program 2 got " + ack5);
 
-            //ta ut allt vatten
+            //Byta vatten
             System.out.println("DRAINING..");
             water.send(new WashingMessage(this, WATER_DRAIN));
             WashingMessage ack6 = receive();
-            System.out.println("washing program 1 got " + ack6);
+            System.out.println("washing program 2 got " + ack6);
 
-            //börja spinna igen
+            System.out.println("filling with water");
+            water.send(new WashingMessage(this, WATER_FILL));
+            WashingMessage ack7 = receive();
+            System.out.println("washing program 2 got " + ack7);
+
+            //Main wash på g
+            System.out.println("setting TEMP_SET_60");
+            temp.send(new WashingMessage(this, TEMP_SET_60));
+            WashingMessage ack8 = receive();
+            System.out.println("washing program 2 got " + ack8);
+
             System.out.println("setting SPIN_SLOW...");
             spin.send(new WashingMessage(this, SPIN_SLOW));
-            WashingMessage ack7 = receive();
-            System.out.println("washing program 1 got " + ack7);
+            WashingMessage ack9 = receive();
+            System.out.println("washing program 2 got " + ack9);
 
-            //Skölj 5 gånger.
+            //I 30 min
+            Thread.sleep(30 * 60000 / Settings.SPEEDUP);
+
+            //Förbered rinsing
+            System.out.println("setting SPIN_OFF...");
+            spin.send(new WashingMessage(this, SPIN_OFF));
+            WashingMessage ack10 = receive();
+            System.out.println("washing program 2 got " + ack10);
+
+            System.out.println("Setting TEMP_60_OFF");
+            temp.send(new WashingMessage(this, TEMP_IDLE));
+            WashingMessage ack11 = receive();
+            System.out.println("washing program 2 got " + ack11);
+
+            System.out.println("DRAINING..");
+            water.send(new WashingMessage(this, WATER_DRAIN));
+            WashingMessage ack12 = receive();
+            System.out.println("washing program 2 got " + ack12);
+
+            System.out.println("setting SPIN_SLOW...");
+            spin.send(new WashingMessage(this, SPIN_SLOW));
+            WashingMessage ack13 = receive();
+            System.out.println("washing program 2 got " + ack13);
+
+            //nu kommer samma som 1an
             for(int i = 0; i < 5; i++){
 
 
                 System.out.println("FILLING..");
                 water.send(new WashingMessage(this, WATER_FILL));
-                WashingMessage ack8 = receive();
-                System.out.println("washing program 1 got " + ack8);
+                WashingMessage ack14 = receive();
+                System.out.println("washing program 1 got " + ack14);
 
                 Thread.sleep(2 * 60000 / Settings.SPEEDUP);
 
                 System.out.println("DRAINING..");
                 water.send(new WashingMessage(this, WATER_DRAIN));
-                WashingMessage ack9 = receive();
-                System.out.println("washing program 1 got " + ack9);
+                WashingMessage ack15 = receive();
+                System.out.println("washing program 1 got " + ack15);
 
             }
             //förbered centrifugering
             System.out.println("SPIN_OFF");
             spin.send(new WashingMessage(this, SPIN_OFF));
-            WashingMessage ack10 = receive();
-            System.out.println("washing program 1 got " + ack10);
+            WashingMessage ack15 = receive();
+            System.out.println("washing program 1 got " + ack15);
 
 
             //Centrifugera
             System.out.println("Centrifuging...");
             spin.send(new WashingMessage(this, SPIN_FAST));
-            WashingMessage ack12 = receive();
-            System.out.println("washing program 1 got " + ack12);
+            WashingMessage ack16 = receive();
+            System.out.println("washing program 1 got " + ack16);
 
             // Centrifuge for simulated time 30 minutes
             Thread.sleep(5 * 60000 / Settings.SPEEDUP);
@@ -115,24 +146,25 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
             //Stäng av snurrningarna
             System.out.println("Stopping centrifuge...");
             spin.send(new WashingMessage(this, SPIN_OFF));
-            WashingMessage ack14 = receive();
+            WashingMessage ack17 = receive();
 
             //Stäng av värmen
             System.out.println("Turn of heating...");
             temp.send(new WashingMessage(this, TEMP_IDLE));
-            WashingMessage ack15 = receive();
+            WashingMessage ack18 = receive();
 
             // Stäng av alla funktioner
             System.out.println("Close drain...");
             water.send(new WashingMessage(this, WATER_IDLE));
-            WashingMessage ack16 = receive();
+            WashingMessage ack19 = receive();
 
             // Vänta lite
             Thread.sleep(1 * 60000 / Settings.SPEEDUP);
 
             //Nu kan vi låsa upp
             io.lock(false);
-            System.out.println("Washing program 1 finished");
+
+            System.out.println("Washing program 2 finished");
 
         } catch (InterruptedException e) {
             temp.send(new WashingMessage(this, TEMP_IDLE));

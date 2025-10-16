@@ -34,6 +34,8 @@ public class Wash {
                     currentProgram.start();
                 }
                 case 2 -> {
+                    currentProgram = new WashingProgram2(io, temp, water, spin);
+                    currentProgram.start();
                 }
                 case 3 -> {
                     currentProgram = new WashingProgram3(io, temp, water, spin);
