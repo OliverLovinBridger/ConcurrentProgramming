@@ -29,6 +29,11 @@ public class WaterController extends ActorThread<WashingMessage> {
                     switch(m.order()) {
                         case WATER_FILL -> {state = State.FILLING;}
                         case WATER_DRAIN -> {state = State.DRAIN;}
+                        case WATER_IDLE -> {
+                            io.drain(false);
+                            state = State.IDLE;
+                            sender.send(new WashingMessage(this, Order.ACKNOWLEDGMENT));
+                        }
                         default -> {}
                     }
                 }

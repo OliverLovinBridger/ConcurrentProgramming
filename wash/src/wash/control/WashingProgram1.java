@@ -32,21 +32,20 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
             //Lock the hatch
             io.lock(true);
 
-
+            //fyll vatten
             System.out.println("filling with water");
             water.send(new WashingMessage(this, WATER_FILL));
             WashingMessage ack1 = receive();
             System.out.println("washing program 1 got " + ack1);
 
-
+            //Värm till 40 grader
             System.out.println("setting TEMP_SET_40");
             temp.send(new WashingMessage(this, TEMP_SET_40));
             WashingMessage ack2 = receive();
             System.out.println("washing program 1 got " + ack2);
 
 
-            //Instruct SpinController to rotate barrel slowly, back and forth
-            //Expect an acknowledgment in response.
+            //rotera sakta.
             System.out.println("setting SPIN_SLOW...");
             spin.send(new WashingMessage(this, SPIN_SLOW));
             WashingMessage ack3 = receive();
@@ -124,19 +123,30 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
 
             System.out.println("Stopping centrifuge...");
             spin.send(new WashingMessage(this, SPIN_OFF));
-            WashingMessage ack14 = receive();
-            System.out.println("washing program 1 got " + ack14);
+            WashingMessage ack14 = receive();; // ACK
 
-            System.out.println("Stopping drain pump...");
-            water.send(new WashingMessage(this, WATER_IDLE));
+            System.out.println("Turn of heating...");
+            temp.send(new WashingMessage(this, TEMP_IDLE));
             WashingMessage ack15 = receive();
-            System.out.println("washing program 1 got " + ack15);
 
-            Thread.sleep(5 * 60000 / Settings.SPEEDUP);
+// Wait for spin to really stop
+            Thread.sleep(2 * 60000 / Settings.SPEEDUP);
 
-            //Now that the barrel has stopped, it is safe to open the hatch.
+            System.out.println("Final draining to ensure empty barrel...");
+            water.send(new WashingMessage(this, WATER_DRAIN));
+            receive(); // Wait for ack = water level 0
+            System.out.println("Barrel fully drained.");
+
+// Then idle
+            water.send(new WashingMessage(this, WATER_IDLE));
+            receive();
+
+// Wait a bit for safety
+            Thread.sleep(1 * 60000 / Settings.SPEEDUP);
+
+// Now safe to unlock
             io.lock(false);
-
+            System.out.println("Washing program 1 finished");
 
         } catch (InterruptedException e) {
             temp.send(new WashingMessage(this, TEMP_IDLE));
