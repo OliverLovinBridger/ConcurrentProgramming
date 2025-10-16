@@ -36,7 +36,7 @@ public class Wash {
                 case 2 -> {
                 }
                 case 3 -> {
-                    currentProgram = new WashingProgram1(io, temp, water, spin);
+                    currentProgram = new WashingProgram3(io, temp, water, spin);
                     currentProgram.start();
                 }
                 // if the user presses buttons 1-3, start a washing program

@@ -35,19 +35,19 @@ public class WaterController extends ActorThread<WashingMessage> {
 
                 switch (state) {
                     case FILLING -> {
+                        io.drain(false);
                         if(io.getWaterLevel() < 10){
                             io.fill(true);
                         } else {
                             io.fill(false);
                             sender.send(new WashingMessage(this, Order.ACKNOWLEDGMENT));
-
+                            state = State.IDLE;
                         }
                     }
                     case DRAIN -> {
                         if(io.getWaterLevel() > 0){
                             io.drain(true);
                         } else {
-                            io.drain(false);
                             sender.send(new WashingMessage(this, Order.ACKNOWLEDGMENT));
                             state = State.IDLE;
 
