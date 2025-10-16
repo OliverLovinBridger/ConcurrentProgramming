@@ -137,6 +137,7 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
             //Now that the barrel has stopped, it is safe to open the hatch.
             io.lock(false);
 
+
         } catch (InterruptedException e) {
             temp.send(new WashingMessage(this, TEMP_IDLE));
             water.send(new WashingMessage(this, WATER_IDLE));
