@@ -52,33 +52,34 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
             System.out.println("washing program 1 got " + ack3);
 
 
-            //Spin for five simulated minutes (one minute == 60000 milliseconds)
+            //Spin i 5 simulerade minuter (en minut == 60000 millisekunder)
             Thread.sleep(30 * 60000 / Settings.SPEEDUP);
 
-            //Instruct SpinController to stop spin barrel spin.
-            //Expect an acknowledgment in response.
+            //Sluta spinna
             System.out.println("setting SPIN_OFF...");
             spin.send(new WashingMessage(this, SPIN_OFF));
             WashingMessage ack4 = receive();
             System.out.println("washing program 1 got " + ack4);
 
-
+            //stäng av tempen
             System.out.println("Setting TEMP_40_OFF");
             temp.send(new WashingMessage(this, TEMP_IDLE));
             WashingMessage ack5 = receive();
             System.out.println("washing program 1 got " + ack5);
 
-
+            //ta ut allt vatten
             System.out.println("DRAINING..");
             water.send(new WashingMessage(this, WATER_DRAIN));
             WashingMessage ack6 = receive();
             System.out.println("washing program 1 got " + ack6);
 
+            //börja spinna igen
             System.out.println("setting SPIN_SLOW...");
             spin.send(new WashingMessage(this, SPIN_SLOW));
             WashingMessage ack7 = receive();
             System.out.println("washing program 1 got " + ack7);
 
+            //Skölj 5 gånger.
             for(int i = 0; i < 5; i++){
 
 
@@ -95,7 +96,7 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
                 System.out.println("washing program 1 got " + ack9);
 
             }
-
+            //förbered centrifugering
             System.out.println("SPIN_OFF");
             spin.send(new WashingMessage(this, SPIN_OFF));
             WashingMessage ack10 = receive();
@@ -106,45 +107,34 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
             WashingMessage ack11 = receive();
             System.out.println("washing program 1 got " + ack11);
 
-
+            //Centrifugera
             System.out.println("Centrifuging...");
             spin.send(new WashingMessage(this, SPIN_FAST));
             WashingMessage ack12 = receive();
             System.out.println("washing program 1 got " + ack12);
 
-
-            System.out.println("Running drain pump...");
-            water.send(new WashingMessage(this, WATER_DRAIN));
-            WashingMessage ack13 = receive();
-            System.out.println("washing program 1 got " + ack13);
-
             // Centrifuge for simulated time 30 minutes
             Thread.sleep(5 * 60000 / Settings.SPEEDUP);
 
+            //Stäng av snurrningarna
             System.out.println("Stopping centrifuge...");
             spin.send(new WashingMessage(this, SPIN_OFF));
-            WashingMessage ack14 = receive();; // ACK
+            WashingMessage ack14 = receive();
 
+            //Stäng av värmen
             System.out.println("Turn of heating...");
             temp.send(new WashingMessage(this, TEMP_IDLE));
             WashingMessage ack15 = receive();
 
-// Wait for spin to really stop
-            Thread.sleep(2 * 60000 / Settings.SPEEDUP);
-
-            System.out.println("Final draining to ensure empty barrel...");
-            water.send(new WashingMessage(this, WATER_DRAIN));
-            receive(); // Wait for ack = water level 0
-            System.out.println("Barrel fully drained.");
-
-// Then idle
+            // Stäng av alla funktioner
+            System.out.println("Close drain...");
             water.send(new WashingMessage(this, WATER_IDLE));
             receive();
 
-// Wait a bit for safety
+            // Vänta lite
             Thread.sleep(1 * 60000 / Settings.SPEEDUP);
 
-// Now safe to unlock
+            //Nu kan vi låsa upp
             io.lock(false);
             System.out.println("Washing program 1 finished");
 
